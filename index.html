@@ -59,10 +59,11 @@ input,select{font:inherit}
 .iconbtn{padding:.45em .7em;border-radius:10px;background:var(--faint);font-weight:700;color:#fff}
 
 /* lobby */
-.lobby{flex:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:2.4vw;align-items:stretch}
+.host.fixed{height:100vh;height:100dvh;overflow:hidden}
+.lobby{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:2.4vw;align-items:stretch}
 .joincard{background:#fff;color:#17124b;border-radius:22px;padding:2vw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vw;box-shadow:0 10px 40px rgba(0,0,0,.35)}
 .joincard h2{font-size:1.7em;font-weight:900;text-align:center;line-height:1.15}
-.joincard .qr{width:min(30vw,52vh);aspect-ratio:1}
+.joincard .qr{width:min(30vw,50vh);aspect-ratio:1}
 .joincard .qr svg,.joincard .qr img{width:100%;height:100%;display:block}
 .joincard .url{font-weight:700;font-size:.95em;color:#3a3f6b;word-break:break-all;text-align:center;max-width:95%}
 .joincard .code{font-size:1.1em;font-weight:700;color:#3a3f6b}
@@ -72,7 +73,8 @@ input,select{font:inherit}
 .lobbyside{display:flex;flex-direction:column;gap:1.2vw;min-height:0}
 .lobbyside h3{font-size:1.6em;font-weight:900;display:flex;align-items:baseline;gap:.5em}
 .lobbyside h3 .n{font-size:1.5em;color:#fff}
-.chips{flex:1;min-height:20vh;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:.6em;padding:.2em}
+.chips.small{gap:.35em}.chips.small .chip{padding:.3em .6em;font-size:.8em;box-shadow:none}
+.chips{flex:1;min-height:0;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:.6em;padding:.2em}
 .chip{background:rgba(255,255,255,.95);color:#17124b;font-weight:800;padding:.5em 1em;border-radius:10px;animation:pop .35s ease-out both;box-shadow:0 3px 0 rgba(0,0,0,.25)}
 .chip:hover{background:#ffd9de;text-decoration:line-through}
 .empty{color:var(--muted);font-weight:600;font-size:1.1em;padding:1em 0}
@@ -119,7 +121,7 @@ input,select{font:inherit}
 .row.top1{background:linear-gradient(90deg,#ffe28a,#fff 60%)}
 
 /* final */
-.final{flex:1;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:2.4vw;min-height:0}
+.final{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:2.4vw;min-height:0}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:1.4vw;padding-top:2vw}
 .pcol{display:flex;flex-direction:column;align-items:center;gap:.6em;width:30%}
 .pcol .pname{font-weight:900;font-size:1.5em;text-align:center;word-break:break-word;animation:pop .5s .9s both}
@@ -2788,7 +2790,7 @@ function startHost(existing){
     screen="lobby";
     const ju = joinURL();
     const isFile = location.protocol==="file:" && !load("sorbaquiz-baseurl");
-    app.innerHTML = `<div class="host">${header(`<span class="tag">${N} perguntas · ${CASOS} casos</span>`)}
+    app.innerHTML = `<div class="host fixed">${header(`<span class="tag">${N} perguntas · ${CASOS} casos</span>`)}
       <div class="lobby">
         <div class="joincard">
           <h2>Entre pelo celular:<br>aponte a câmera para o QR code</h2>
@@ -2824,6 +2826,7 @@ function startHost(existing){
     const list=playerList();
     const np=document.getElementById("np"); if(np) np.textContent=list.length;
     const el=document.getElementById("chips"); if(!el) return;
+    el.classList.toggle("small", list.length>60);
     if(!list.length){ el.innerHTML=`<div class="empty">Aguardando jogadores…</div>`; chipSeen.clear(); return; }
     el.innerHTML = list.map(p=>`<button class="chip" data-pid="${esc(p.pid)}" title="Remover" ${chipSeen.has(p.pid)?'style="animation:none"':""}>${esc(p.name)}</button>`).join("");
     list.forEach(p=>chipSeen.add(p.pid));
@@ -2905,7 +2908,7 @@ function startHost(existing){
     const r=ranked();
     const pod=[r[1],r[0],r[2]];
     const cls=["p2","p1","p3"];
-    app.innerHTML = `<div class="host">${header(`<span class="tag">Fim de jogo</span>`)}
+    app.innerHTML = `<div class="host fixed">${header(`<span class="tag">Fim de jogo</span>`)}
       <div class="final">
         <div class="podium">${pod.map((p,i)=> p?`<div class="pcol ${cls[i]}"><div class="pname">${esc(p.name)}</div><div class="pstat">${p.correct}/${N} acertos · ${fmt(p.score)} pts</div><div class="pblock" style="animation-delay:${[.3,.6,0][i]}s">${p.rank}º</div></div>`:`<div class="pcol ${cls[i]}"></div>`).join("")}</div>
         <div class="ranking"><h3>Classificação completa (${r.length})</h3>
